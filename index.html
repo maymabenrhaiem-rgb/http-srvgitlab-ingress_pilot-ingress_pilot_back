@@ -1,0 +1,350 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-sans);}
+#app{padding:1rem 0;}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:8px;}
+.header h2{font-size:18px;font-weight:500;color:var(--color-text-primary);}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;}
+.tab{padding:6px 14px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;background:transparent;color:var(--color-text-secondary);transition:all .15s;}
+.tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary);}
+.section{display:none;}
+.section.active{display:block;}
+
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:1.5rem;}
+.col{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:10px;}
+.col-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.badge{font-size:11px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:1px 7px;color:var(--color-text-secondary);}
+.ticket{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 10px;margin-bottom:6px;cursor:pointer;transition:border-color .15s;}
+.ticket:hover{border-color:var(--color-border-primary);}
+.ticket-title{font-size:13px;color:var(--color-text-primary);margin-bottom:4px;line-height:1.4;}
+.ticket-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.tag{font-size:11px;padding:2px 7px;border-radius:10px;font-weight:500;}
+.tag-bug{background:#FCEBEB;color:#A32D2D;}
+.tag-feat{background:#E6F1FB;color:#185FA5;}
+.tag-test{background:#EAF3DE;color:#3B6D11;}
+.tag-devops{background:#FAEEDA;color:#854F0B;}
+.tag-todo{background:#F1EFE8;color:#5F5E5A;}
+.tag-progress{background:#FAEEDA;color:#854F0B;}
+.tag-review{background:#E6F1FB;color:#185FA5;}
+.tag-done{background:#EAF3DE;color:#3B6D11;}
+.prio{font-size:10px;color:var(--color-text-secondary);}
+
+/* FORM */
+.form-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem;}
+.form-row{margin-bottom:12px;}
+label{font-size:13px;color:var(--color-text-secondary);display:block;margin-bottom:4px;}
+input,textarea,select{width:100%;font-size:14px;padding:7px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);}
+textarea{min-height:80px;resize:vertical;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+button.primary{padding:7px 18px;font-size:13px;background:var(--color-text-primary);color:var(--color-background-primary);border:none;border-radius:var(--border-radius-md);cursor:pointer;}
+button.secondary{padding:7px 18px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-primary);cursor:pointer;}
+button.ai-btn{padding:7px 14px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-primary);cursor:pointer;}
+
+/* AI Panel */
+.ai-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px;margin-top:10px;font-size:13px;color:var(--color-text-secondary);line-height:1.6;min-height:48px;}
+.ai-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;display:inline-block;}
+
+/* LIST */
+.ticket-list{display:flex;flex-direction:column;gap:8px;}
+.list-item{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.list-item:hover{border-color:var(--color-border-primary);}
+.list-id{font-size:11px;color:var(--color-text-secondary);min-width:50px;}
+.list-title{flex:1;font-size:14px;color:var(--color-text-primary);}
+.list-assignee{font-size:12px;color:var(--color-text-secondary);}
+.filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.filter-row select{width:auto;font-size:13px;padding:5px 8px;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:100;}
+.modal{background:var(--color-background-primary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);padding:1.25rem;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;}
+.modal h3{font-size:16px;font-weight:500;margin-bottom:1rem;}
+.modal-close{float:right;cursor:pointer;font-size:18px;color:var(--color-text-secondary);background:none;border:none;}
+.detail-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;}
+.detail-label{font-size:12px;color:var(--color-text-secondary);min-width:80px;padding-top:2px;}
+.detail-val{font-size:13px;color:var(--color-text-primary);}
+.status-select{font-size:13px;padding:4px 8px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);}
+.empty{text-align:center;color:var(--color-text-secondary);font-size:13px;padding:2rem 0;}
+</style>
+
+<div id="app">
+  <div class="header">
+    <h2>Gestionnaire de tickets IA</h2>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('kanban')">Kanban</button>
+      <button class="tab" onclick="switchTab('list')">Liste</button>
+      <button class="tab" onclick="switchTab('new')">+ Nouveau ticket</button>
+    </div>
+  </div>
+
+  <!-- KANBAN -->
+  <div id="tab-kanban" class="section active">
+    <div class="kanban" id="kanban-board"></div>
+    <div style="margin-top:8px;">
+      <div class="ai-label"><span class="dot"></span> Assistant IA — analyse du projet</div>
+      <div class="ai-box" id="ai-summary">Cliquez sur un ticket ou sur "Analyser" pour obtenir des suggestions.</div>
+      <div style="margin-top:8px;display:flex;gap:8px;">
+        <button class="ai-btn" onclick="aiAnalyze()">Analyser les tickets ↗</button>
+        <button class="ai-btn" onclick="aiPrioritize()">Prioriser automatiquement ↗</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST -->
+  <div id="tab-list" class="section">
+    <div class="filter-row">
+      <select id="filter-status" onchange="renderList()">
+        <option value="">Tous les statuts</option>
+        <option value="todo">À faire</option>
+        <option value="progress">En cours</option>
+        <option value="review">En review</option>
+        <option value="done">Terminé</option>
+      </select>
+      <select id="filter-type" onchange="renderList()">
+        <option value="">Tous les types</option>
+        <option value="bug">Bug</option>
+        <option value="feat">Feature</option>
+        <option value="test">Test</option>
+        <option value="devops">DevOps</option>
+      </select>
+    </div>
+    <div class="ticket-list" id="ticket-list"></div>
+  </div>
+
+  <!-- NEW TICKET -->
+  <div id="tab-new" class="section">
+    <div class="form-card">
+      <div class="form-row">
+        <label>Titre du ticket</label>
+        <input id="t-title" placeholder="Ex: Corriger le bug de login en prod" />
+      </div>
+      <div class="form-row">
+        <label>Description</label>
+        <textarea id="t-desc" placeholder="Décrivez le problème ou la fonctionnalité..."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-row">
+          <label>Type</label>
+          <select id="t-type">
+            <option value="bug">Bug</option>
+            <option value="feat">Feature</option>
+            <option value="test">Test</option>
+            <option value="devops">DevOps</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Priorité</label>
+          <select id="t-prio">
+            <option value="haute">Haute</option>
+            <option value="moyenne">Moyenne</option>
+            <option value="basse">Basse</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-row">
+          <label>Assigné à</label>
+          <input id="t-assign" placeholder="Prénom ou @pseudo" />
+        </div>
+        <div class="form-row">
+          <label>Sprint / Milestone</label>
+          <input id="t-sprint" placeholder="Ex: Sprint 3" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="primary" onclick="createTicket()">Créer le ticket</button>
+        <button class="ai-btn" onclick="aiSuggestTicket()">Suggestion IA ↗</button>
+        <button class="secondary" onclick="clearForm()">Effacer</button>
+      </div>
+      <div id="ai-suggest-box" style="display:none;margin-top:10px;">
+        <div class="ai-label"><span class="dot"></span> Suggestion IA</div>
+        <div class="ai-box" id="ai-suggest-text"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal" style="display:none;" onclick="closeModal(event)">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+let tickets = [
+  {id:'T-001',title:'Erreur 500 sur /api/auth/login',desc:'Lors d\'une charge élevée, le endpoint retourne une 500. Logs disponibles dans Datadog.',type:'bug',prio:'haute',status:'progress',assign:'Mehdi',sprint:'Sprint 3'},
+  {id:'T-002',title:'Ajouter la pagination sur /api/users',desc:'Implémenter une pagination cursor-based pour l\'endpoint GET /users.',type:'feat',prio:'moyenne',status:'todo',assign:'Sara',sprint:'Sprint 3'},
+  {id:'T-003',title:'Pipeline CI — tests e2e timeout',desc:'Les tests Cypress en CI dépassent 10min et bloquent le déploiement.',type:'devops',prio:'haute',status:'review',assign:'Amine',sprint:'Sprint 3'},
+  {id:'T-004',title:'Tests unitaires module paiement',desc:'Couverture actuelle : 42%. Objectif : 80%.',type:'test',prio:'moyenne',status:'todo',assign:'Sara',sprint:'Sprint 3'},
+  {id:'T-005',title:'Migration base de données v1→v2',desc:'Script de migration + rollback à tester en staging.',type:'devops',prio:'haute',status:'done',assign:'Mehdi',sprint:'Sprint 2'},
+  {id:'T-006',title:'Refactor composant AuthGuard',desc:'Extraire la logique de refresh token dans un hook dédié.',type:'feat',prio:'basse',status:'done',assign:'Amine',sprint:'Sprint 2'},
+];
+let nextId = 7;
+
+const cols = [
+  {key:'todo',label:'À faire',tagClass:'tag-todo'},
+  {key:'progress',label:'En cours',tagClass:'tag-progress'},
+  {key:'review',label:'En review',tagClass:'tag-review'},
+  {key:'done',label:'Terminé',tagClass:'tag-done'},
+];
+const typeLabels = {bug:'Bug',feat:'Feature',test:'Test',devops:'DevOps'};
+const prioIcon = {haute:'↑ Haute',moyenne:'→ Moyenne',basse:'↓ Basse'};
+
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach((b,i)=>{
+    b.classList.toggle('active',['kanban','list','new'][i]===t);
+  });
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='kanban')renderKanban();
+  if(t==='list')renderList();
+}
+
+function renderKanban(){
+  const board = document.getElementById('kanban-board');
+  board.innerHTML = cols.map(c=>{
+    const ts = tickets.filter(t=>t.status===c.key);
+    return `<div class="col">
+      <div class="col-title">${c.label}<span class="badge">${ts.length}</span></div>
+      ${ts.length===0?'<div class="empty">Vide</div>':ts.map(t=>`
+        <div class="ticket" onclick="openTicket('${t.id}')">
+          <div class="ticket-title">${t.title}</div>
+          <div class="ticket-meta">
+            <span class="tag tag-${t.type}">${typeLabels[t.type]}</span>
+            <span class="prio">${prioIcon[t.prio]}</span>
+          </div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px;">${t.assign||''} · ${t.sprint||''}</div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderList(){
+  const fs = document.getElementById('filter-status').value;
+  const ft = document.getElementById('filter-type').value;
+  const filtered = tickets.filter(t=>(fs?t.status===fs:true)&&(ft?t.type===ft:true));
+  const list = document.getElementById('ticket-list');
+  if(filtered.length===0){list.innerHTML='<div class="empty">Aucun ticket trouvé.</div>';return;}
+  list.innerHTML = filtered.map(t=>`
+    <div class="list-item" onclick="openTicket('${t.id}')">
+      <span class="list-id">${t.id}</span>
+      <span class="list-title">${t.title}</span>
+      <span class="tag tag-${t.type}">${typeLabels[t.type]}</span>
+      <span class="tag tag-${t.status}">${cols.find(c=>c.key===t.status)?.label||t.status}</span>
+      <span class="list-assignee">${t.assign||'—'}</span>
+    </div>`).join('');
+}
+
+function openTicket(id){
+  const t = tickets.find(x=>x.id===id);
+  if(!t)return;
+  document.getElementById('modal-content').innerHTML = `
+    <button class="modal-close" onclick="document.getElementById('modal').style.display='none'">×</button>
+    <h3>${t.id} — ${t.title}</h3>
+    <div class="detail-row"><span class="detail-label">Description</span><span class="detail-val">${t.desc||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Type</span><span class="tag tag-${t.type}">${typeLabels[t.type]}</span></div>
+    <div class="detail-row"><span class="detail-label">Priorité</span><span class="detail-val">${prioIcon[t.prio]}</span></div>
+    <div class="detail-row"><span class="detail-label">Assigné à</span><span class="detail-val">${t.assign||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Sprint</span><span class="detail-val">${t.sprint||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Statut</span>
+      <select class="status-select" onchange="changeStatus('${t.id}',this.value)">
+        ${cols.map(c=>`<option value="${c.key}"${t.status===c.key?' selected':''}>${c.label}</option>`).join('')}
+      </select>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="ai-btn" onclick="aiTicketDetail('${t.id}')">Analyse IA de ce ticket ↗</button>
+      <button class="secondary" onclick="deleteTicket('${t.id}')">Supprimer</button>
+    </div>
+    <div id="modal-ai" style="display:none;margin-top:10px;">
+      <div class="ai-label"><span class="dot"></span> Analyse IA</div>
+      <div class="ai-box" id="modal-ai-text"></div>
+    </div>`;
+  document.getElementById('modal').style.display='flex';
+}
+
+function closeModal(e){
+  if(e.target===document.getElementById('modal'))document.getElementById('modal').style.display='none';
+}
+
+function changeStatus(id,val){
+  const t=tickets.find(x=>x.id===id);
+  if(t){t.status=val;renderKanban();renderList();}
+}
+
+function deleteTicket(id){
+  tickets=tickets.filter(x=>x.id!==id);
+  document.getElementById('modal').style.display='none';
+  renderKanban();renderList();
+}
+
+function createTicket(){
+  const title=document.getElementById('t-title').value.trim();
+  if(!title){alert('Le titre est obligatoire.');return;}
+  const t={
+    id:'T-'+(String(nextId++).padStart(3,'0')),
+    title,
+    desc:document.getElementById('t-desc').value,
+    type:document.getElementById('t-type').value,
+    prio:document.getElementById('t-prio').value,
+    status:'todo',
+    assign:document.getElementById('t-assign').value,
+    sprint:document.getElementById('t-sprint').value,
+  };
+  tickets.unshift(t);
+  clearForm();
+  switchTab('kanban');
+}
+
+function clearForm(){
+  ['t-title','t-desc','t-assign','t-sprint'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ai-suggest-box').style.display='none';
+}
+
+async function callAI(prompt){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+  const d=await r.json();
+  return d.content?.map(b=>b.text||'').join('')||'Erreur de réponse.';
+}
+
+async function aiAnalyze(){
+  const box=document.getElementById('ai-summary');
+  box.textContent='Analyse en cours…';
+  const summary=tickets.map(t=>`[${t.id}] ${t.title} (${t.type}, ${t.prio}, ${t.status}, assigné: ${t.assign||'—'})`).join('\n');
+  const res=await callAI(`Tu es un tech lead expérimenté. Voici les tickets d'une équipe dev/devops/test :\n${summary}\n\nDonne en 4-5 phrases: les points de blocage, les risques, et 2 recommandations concrètes. Réponds en français, de façon directe et pratique.`);
+  box.textContent=res;
+}
+
+async function aiPrioritize(){
+  const box=document.getElementById('ai-summary');
+  box.textContent='Priorisation en cours…';
+  const open=tickets.filter(t=>t.status!=='done').map(t=>`[${t.id}] ${t.title} (${t.type}, prio actuelle: ${t.prio})`).join('\n');
+  const res=await callAI(`Tu es un tech lead. Voici les tickets ouverts :\n${open}\n\nPropose un ordre de traitement priorisé avec une justification courte (max 3 lignes). Réponds en français.`);
+  box.textContent=res;
+}
+
+async function aiSuggestTicket(){
+  const title=document.getElementById('t-title').value.trim();
+  const desc=document.getElementById('t-desc').value.trim();
+  if(!title&&!desc){alert('Entrez au moins un titre pour avoir une suggestion.');return;}
+  const box=document.getElementById('ai-suggest-box');
+  const txt=document.getElementById('ai-suggest-text');
+  box.style.display='block';
+  txt.textContent='Analyse en cours…';
+  const res=await callAI(`Tu es un tech lead. Un développeur crée ce ticket:\nTitre: ${title}\nDescription: ${desc||'(vide)'}\n\nSuggère en 3 points: 1) une description améliorée, 2) les critères d'acceptance, 3) une estimation de complexité (S/M/L). Réponds en français, format concis.`);
+  txt.textContent=res;
+}
+
+async function aiTicketDetail(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t)return;
+  const box=document.getElementById('modal-ai');
+  const txt=document.getElementById('modal-ai-text');
+  box.style.display='block';
+  txt.textContent='Analyse en cours…';
+  const res=await callAI(`Tu es un tech lead expert. Analyse ce ticket:\nTitre: ${t.title}\nType: ${typeLabels[t.type]}\nPriorité: ${t.prio}\nDescription: ${t.desc||'—'}\n\nDonne: 1) risques potentiels, 2) approche technique recommandée, 3) définition de "done". Réponds en français, 5 lignes max.`);
+  txt.textContent=res;
+}
+
+renderKanban();
+</script>
